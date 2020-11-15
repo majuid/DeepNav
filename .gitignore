@@ -1,0 +1,11 @@
+DeepNav_data/*
+DeepNav_results/*
+recycle/*
+*pycache*
+*.csv
+*.ulg
+*.pdf
+*.hdf5
+*.mp4
+*.json
+*.mat
