@@ -88,7 +88,7 @@ with open("downloader_options.yaml", 'r') as stream:
     arguments = yaml.safe_load(stream)
 
 # create a folder to store database info files
-db_info_dir = os.path.join(os.path.pardir, os.path.pardir, "DeepNav_data", "database_info_files")
+db_info_dir = os.path.join(os.path.pardir, "DeepNav_data", "database_info_files")
 if not os.path.isdir(db_info_dir):
     os.makedirs(db_info_dir)
 
@@ -122,7 +122,7 @@ else:
 print("\ndatabase info retreived!, number of logs : ", len(db_entries_list))
 
 # find already existing logs in download folder (a log id is 36 characters)
-download_folder = os.path.join(os.path.pardir, os.path.pardir, "DeepNav_data", "ulg_files")
+download_folder = os.path.join(os.path.pardir, "DeepNav_data", "ulg_files")
 if os.path.isdir(download_folder):
     lognames = sorted(os.listdir(download_folder))
     logfiles = [log_name[-40:-4] for log_name in lognames]

@@ -1,6 +1,5 @@
 db_api_info: https://review.px4.io/dbinfo
 download_api: https://review.px4.io/download
-download_folder: ./ulg_files/
 duration_max_m: 40
 duration_min_m: 5
 filters:
@@ -19,9 +18,10 @@ filters:
   - ''
   sys_hw:
   - PX4_FMU_V5
+  - PX4FMU_V5
   num_logged_errors: 0
-local_db_info_file: px4_db_info_09Nov2020.json
-max_num: 3
+local_db_info_file: px4_db_info_16Nov2020.json
+max_num: 1000
 overwrite: false
 save_db_info_only: true
-use_local_db_info: true
+use_local_db_info: false
