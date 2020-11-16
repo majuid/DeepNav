@@ -102,6 +102,10 @@ def evaluate_all_flights(model, train_flights_dict, val_flights_dict, trial_fold
 
         for flight_number, one_flight_data in enumerate(flights_list):
             
+            # to speedup testing
+            if flight_number > 5:
+                break
+
             flight_name = one_flight_data[0]
             print("flight " + str(flight_number) + "/" + str(total_flights) + " : " + flight_name)
             
@@ -141,7 +145,7 @@ def evaluate_all_flights(model, train_flights_dict, val_flights_dict, trial_fold
             flights_errors[pdf_name] = max_position_error
 
             flight_duration = ground_truth_reconstructed.shape[0] * 0.2 / 60
-            set_summary.append([flight_name, flight_duration, max_position_error, max_velocity_error])
+            set_summary.append([int(flight_name[0:4]), flight_duration, max_position_error, max_velocity_error])
         
         flights_summary[set_name] = set_summary
         
@@ -154,13 +158,13 @@ def evaluate_all_flights(model, train_flights_dict, val_flights_dict, trial_fold
         worst_name_base = os.path.join(trial_folder, set_name, "reconstructed", "worst")
 
         for i in range(n_extreme_flights):
-            pdf_name = sorted_flights[i]
+            pdf_name = sorted_flights[i][0]
             old_name = os.path.join(old_name_base, pdf_name)
             new_name = os.path.join(best_name_base, pdf_name)
             os.rename(old_name, new_name)
         
         for i in range(-n_extreme_flights, 0):
-            pdf_name = sorted_flights[i]
+            pdf_name = sorted_flights[i][0]
             old_name = os.path.join(old_name_base, pdf_name)
             new_name = os.path.join(worst_name_base, pdf_name)
             os.rename(old_name, new_name)
@@ -193,7 +197,7 @@ def summarize_session(trial_tree, model, session_data, flights_summary):
     with open(trial_tree["history_csv_file"],'r') as log_file:
 	    logged_losses = log_file.readlines()
 
-    last_epoch_log = logged_losses[-2] 
+    last_epoch_log = logged_losses[-1] 
     last_log = [float(i) for i in last_epoch_log.split(",")]
     epochs = f'{last_log[0]+1:.0f}'
     training_loss = f'{last_log[1]:.4f}'
@@ -225,20 +229,21 @@ def summarize_session(trial_tree, model, session_data, flights_summary):
     set_names = ["training", "validation"]
 
     for set_name in set_names:
-        
-        flights_errors = np.array(flights_summary[set_name][:,1:])
+      
+        flights_errors = np.array(flights_summary[set_name])[:,1:]
 
         mean_errors = np.mean(flights_errors, axis=0)
         median_errors = np.median(flights_errors, axis=0)
         max_errors = np.max(flights_errors, axis=0)
         min_errors = np.min(flights_errors, axis=0)
 
-        session_stats = ["mean," + ','.join(map(str, mean_errors)) + '\n', 
+        session_stats = ['\n', \
+                         "mean," + ','.join(map(str, mean_errors)) + '\n', 
                          "median," + ','.join(map(str, median_errors)) + '\n',
                          "max," + ','.join(map(str, max_errors)) + '\n',
                          "min," + ','.join(map(str, min_errors)) + '\n']
         
-        summary_file = os.path.join(trial_tree["trial_root_folder"], set_name + "_summary")
+        summary_file = os.path.join(trial_tree["trial_root_folder"], set_name + "_summary.csv")
         file_header = "Flight Number, Duration (min), Max Position Error (m), Max Velocity Error (m/s)"
         np.savetxt(summary_file, flights_summary[set_name], delimiter=",", header=file_header)
 
@@ -255,6 +260,11 @@ def summarize_session(trial_tree, model, session_data, flights_summary):
         csv_reader = csv.reader(read_obj)
         header = next(csv_reader)
 
+    #remove unnecessary session_data items
+    session_data.pop("n_labels") 
+    session_data.pop("n_features") 
+    session_data.pop("initial_epoch") 
+    
     # write session_data according to the header
     with open('summary.csv', 'a+', newline='') as write_obj:
         dict_writer = csv.DictWriter(write_obj, fieldnames=header)

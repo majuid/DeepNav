@@ -13,8 +13,6 @@ import tensorflow as tf
 
 print("tensorflow version = ", tf.__version__)
 
-from utils.evaluation import *
-
 from utils import retrieve_latest_weights
 
 from tensorflow.python.keras import backend as K
@@ -24,18 +22,20 @@ from tensorflow.compat.v1 import ConfigProto
 from tensorflow.compat.v1 import InteractiveSession
 from tensorflow.keras.regularizers import l1
 
+# prevent tensorflow from reserving the entire gpu memory
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = InteractiveSession(config=config)
+
 def start_training(session_data, model_architecture, train_ds, val_ds, signals_weights_tensor, trial_tree):
+
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     epochs = session_data["epochs"]
     initial_epoch = session_data["initial_epoch"]
 
     weights_folder = trial_tree["weights_folder"]
     history_csv_file = trial_tree["history_csv_file"]
-    
-    # prevent tensorflow from reserving the entire gpu memory
-    config = ConfigProto()
-    config.gpu_options.allow_growth = True
-    session = InteractiveSession(config=config)
 
     # create a distribution strategy for multi gpus
     if session_data["gpu_name"] is None:
