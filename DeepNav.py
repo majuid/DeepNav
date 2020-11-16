@@ -16,27 +16,25 @@ import postprocessing
 from preprocessing.create_dataset import create_dataset
 
 # Session Parameters
-trial_number = 10
+trial_number = 2
 
 session_mode = ["Fresh", "Resume", "Evaluate", "Override"]
-mode_id = 0
+mode_id = 3
 gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
 
 create_new_dataset = 1 # 0:No, 1:Yes
 
 # Network Hyperparameters
-batch_size = int(3 * 1024)
+batch_size = int(2 * 1024)
 learning_rate = 0.005
 dropout = 0.0
-epochs = 150
+epochs = 200
 initial_epoch = 0
-window_size = 50
+window_size = 100
 
 # Network Architecture
 model_architecture = [
-    tf.keras.layers.LSTM(100, return_sequences=True),
-    tf.keras.layers.LSTM(100, return_sequences=True),
     tf.keras.layers.LSTM(100, return_sequences=True),
     tf.keras.layers.LSTM(100, return_sequences=False),
     tf.keras.layers.Dense(6)
@@ -66,7 +64,7 @@ trial_tree = utils.create_trial_tree(session_data["trial_number"], session_data[
 if create_new_dataset:
     session_data["dataset_name"] = None
 else:
-    session_data["dataset_name"] = "T022_7logs_F11L10_W100_11Nov2020_1652"
+    session_data["dataset_name"] = "T001_logs548_F10L6_W50_16Nov2020_0531"
     
 # create windowed datasets from the flight csv files (or retrieve an old one from binary files)
 train_ds, val_dataset, train_flights_dict, val_flights_dict, signals_weights = create_dataset(session_data)
@@ -79,12 +77,12 @@ val_dataset = val_dataset.batch(batch_size).shuffle(buffer_size=1000)
 signals_weights_tensor = tf.constant(signals_weights, dtype=tf.float32)
 
 # start training
-model = training.start_training(session_data, model_architecture, train_dataset, val_dataset, \ 
+model = training.start_training(session_data, model_architecture, train_dataset, val_dataset, \
                                 signals_weights_tensor, trial_tree)
 
 # for every flight, plot all states (truth vs predictions)
-postprocessing.evaluate_all_flights(model, train_flights_dict, val_flights_dict, \
-                                    trial_tree["trial_root_folder"], n_extreme_flights=10)
+flights_summary = postprocessing.evaluate_all_flights(model, train_flights_dict, val_flights_dict, \
+                                    trial_tree["trial_root_folder"], n_extreme_flights=2)
 
 # add the network configuration and performance to the summary csv
-postprocessing.summarize_session(trial_tree, model, session_data)
+postprocessing.summarize_session(trial_tree, model, session_data, flights_summary)

@@ -97,7 +97,7 @@ def create_dataset(session_data):
         
         # dictionary of two dictionaries, (training & validation), each subdictionary is key-value pairs
         # of (flight_name, list of windows)
-        flights_dictionaries = {}
+        flights_dictionaries = {"training":{}, "validation":{}}
 
         for set_subdir in sets_subdirs:
             csvs_directory = os.path.join(csvs_root_directory, set_subdir)
@@ -144,7 +144,7 @@ def create_dataset(session_data):
             combined_windowed_labels[set_subdir] = combined_windowed_labels[set_subdir][shuffled_indices] 
 
         # save the dataset to files (features, labels)
-        with open(os.path.join(datasets_directory, dataset_name, "features_labels"), 'wb') as features_labels_file:
+        with open(os.path.join(datasets_directory, "features_labels"), 'wb') as features_labels_file:
             np.savez(features_labels_file, \
                      features_tr=combined_windowed_features["training"], \
                      labels_tr=combined_windowed_labels["training"], \
