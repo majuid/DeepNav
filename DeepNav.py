@@ -16,22 +16,22 @@ import postprocessing
 from preprocessing.create_dataset import create_dataset
 
 # Session Parameters
-trial_number = 1
+trial_number = 2
 
 session_mode = ["Fresh", "Resume", "Evaluate", "Override"]
 mode_id = 3
 gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
 
-create_new_dataset = 0 # 0:No, 1:Yes
+create_new_dataset = 1 # 0:No, 1:Yes
 
 # Network Hyperparameters
-batch_size = int(4 * 1024)
+batch_size = int(2 * 1024)
 learning_rate = 0.005
 dropout = 0.0
 epochs = 200
 initial_epoch = 0
-window_size = 50
+window_size = 100
 
 # Network Architecture
 model_architecture = [
