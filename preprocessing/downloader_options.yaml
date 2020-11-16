@@ -20,8 +20,8 @@ filters:
   - PX4_FMU_V5
   - PX4FMU_V5
   num_logged_errors: 0
-local_db_info_file: px4_db_info_16Nov2020.json
+local_db_info_file: filtered_px4_db_info_16Nov2020.json
 max_num: 1000
 overwrite: false
-save_db_info_only: true
-use_local_db_info: false
+save_db_info_only: false
+use_local_db_info: true

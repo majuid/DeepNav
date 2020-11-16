@@ -102,6 +102,7 @@ if arguments["use_local_db_info"]:
             db_entries_list = json.load(fin)
     else:
         print("didn't find the database info file")
+        exit()
 
 # or download the updated database info and save it
 else:
