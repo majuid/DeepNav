@@ -3,6 +3,7 @@
 ## DeepNav Directory Structure
 
 DeepNav
+    
     |_ DeepNav_data : contains all data used for training
         |_ ulg_files: log files as downloaded from the database (.ulg)
         |_ flight_csvs: for every ulg file, there is a folder containing

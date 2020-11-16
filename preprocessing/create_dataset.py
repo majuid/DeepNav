@@ -181,11 +181,6 @@ def create_dataset(session_data):
     training_dataset = tf.data.Dataset.from_tensor_slices((combined_windowed_features["training"], combined_windowed_labels["training"]))
     validation_dataset = tf.data.Dataset.from_tensor_slices((combined_windowed_features["validation"], combined_windowed_labels["validation"]))
 
-    # print the shape of a single batch
-    for x, y in training_dataset.take(1):
-        print("\nshape of a single training batch")
-        print(x.shape, y.shape)
-
     return training_dataset, validation_dataset, flights_dictionaries["training"], flights_dictionaries["validation"], signals_weights
 
 if __name__ == '__main__':

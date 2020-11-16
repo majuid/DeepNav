@@ -23,18 +23,20 @@ mode_id = 3
 gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
 
-create_new_dataset = 1 # 0:No, 1:Yes
+create_new_dataset = 0 # 0:No, 1:Yes
 
 # Network Hyperparameters
-batch_size = int(2 * 1024)
+batch_size = int(4 * 1024)
 learning_rate = 0.005
 dropout = 0.0
-epochs = 200
+epochs = 100
 initial_epoch = 0
-window_size = 100
+window_size = 50
 
 # Network Architecture
 model_architecture = [
+    tf.keras.layers.LSTM(100, return_sequences=True),
+    tf.keras.layers.LSTM(100, return_sequences=True),
     tf.keras.layers.LSTM(100, return_sequences=True),
     tf.keras.layers.LSTM(100, return_sequences=False),
     tf.keras.layers.Dense(6)
@@ -73,6 +75,11 @@ train_ds, val_dataset, train_flights_dict, val_flights_dict, signals_weights = c
 train_dataset = train_ds.batch(batch_size).shuffle(buffer_size=1000)
 val_dataset = val_dataset.batch(batch_size).shuffle(buffer_size=1000)
 
+# print the shape of a single batch
+for x, y in train_dataset.take(1):
+    print("\nshape of a single training batch")
+    print(x.shape, y.shape)
+
 # convert signals weights to a tensor to be used by the loss function
 signals_weights_tensor = tf.constant(signals_weights, dtype=tf.float32)
 
@@ -82,7 +89,7 @@ model = training.start_training(session_data, model_architecture, train_dataset,
 
 # for every flight, plot all states (truth vs predictions)
 flights_summary = postprocessing.evaluate_all_flights(model, train_flights_dict, val_flights_dict, \
-                                    trial_tree["trial_root_folder"], n_extreme_flights=2)
+                                    trial_tree["trial_root_folder"], n_extreme_flights=10)
 
 # add the network configuration and performance to the summary csv
 postprocessing.summarize_session(trial_tree, model, session_data, flights_summary)
