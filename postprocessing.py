@@ -102,9 +102,9 @@ def evaluate_all_flights(model, train_flights_dict, val_flights_dict, trial_fold
 
         for flight_number, one_flight_data in enumerate(flights_list):
             
-            # to speedup experimentig
-            # if flight_number > 5:
-            #     break
+            to speedup experimentig
+            if flight_number > 5:
+                break
 
             flight_name = one_flight_data[0]
             print("flight " + str(flight_number) + "/" + str(total_flights) + " : " + flight_name)
