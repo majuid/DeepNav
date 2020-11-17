@@ -23,38 +23,45 @@ gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
 create_new_dataset = False 
 
-# Network Hyperparameters
-session_data = {"trial_number" : 7,
-
-                "session_mode" : session_mode[mode_id],
-                "gpu_name" : gpu_name[gpu_id],
-
-                "batch_size" : int(2 * 1024),
-                "learning_rate" : 0.005,
-                "window_size" : 50,
-                "dropout" : 0.0,
-                "epochs" : 100,
-                "initial_epoch" : 0,
-
-                "n_features" : 10,
-                "n_labels" : 6,
-                }
-
 # Network Architecture
 model_architecture = [
-    tf.keras.layers.LSTM(20, return_sequences=False),
+    tf.keras.layers.LSTM(100, return_sequences=True),
+    tf.keras.layers.LSTM(100, return_sequences=True),
+    tf.keras.layers.LSTM(100, return_sequences=True),
+    tf.keras.layers.LSTM(100, return_sequences=False),
     tf.keras.layers.Dense(6)
     ]
 
 # looping on parameters
-variable_hyperparam = "learning_rate"
-hyperparm_values = [0.001, 0.005, 0.01, 0.05, 0.1]
+varying_hyperparam = "learning_rate"
+hyperparam_values = [0.001, 0.005, 0.01, 0.05, 0.1]
 
-for session_data[variable_hyperparam] in hyperparm_values:
+for trial_offset, hyperparam_value in enumerate(hyperparam_values):
 
     tf.keras.backend.clear_session()
 
-    session_data["trial_number"] += 1
+    # Network Hyperparameters
+    session_data = {"trial_number" : 8,
+
+                    "session_mode" : session_mode[mode_id],
+                    "gpu_name" : gpu_name[gpu_id],
+
+                    "batch_size" : int(2 * 1024),
+                    "learning_rate" : 0.005,
+                    "window_size" : 50,
+                    "dropout" : 0.0,
+                    "epochs" : 100,
+                    "initial_epoch" : 0,
+
+                    "n_features" : 10,
+                    "n_labels" : 6,
+                    }
+
+    session_data[varying_hyperparam] = hyperparam_value
+    
+    session_data["trial_number"] += trial_offset
+
+    print(session_data)
 
     # create folders for the training outputs (weights, plots, loss history)
     trial_tree = utils.create_trial_tree(session_data["trial_number"], session_data["session_mode"])
@@ -85,7 +92,7 @@ for session_data[variable_hyperparam] in hyperparm_values:
 
     # for every flight, plot all states (truth vs predictions)
     flights_summary = postprocessing.evaluate_all_flights(model, train_flights_dict, val_flights_dict, \
-                                        trial_tree["trial_root_folder"], n_extreme_flights=1)
+                                        trial_tree["trial_root_folder"], n_extreme_flights=10)
 
     # add the network configuration and performance to the summary csv
     postprocessing.summarize_session(trial_tree, model, session_data, flights_summary)
