@@ -10,62 +10,58 @@ Usage: Define the network architecture and training hyperparameters
 # non standard library
 import os
 import tensorflow as tf
+from tensorflow.python.keras.backend import variable
 import training
 import utils
 import postprocessing
 from preprocessing.create_dataset import create_dataset
 
 # Session Parameters
-trial_number = 0
+session_mode = ["Fresh", "Resume", "Evaluate", "Override"]
+mode_id = 0
+gpu_name = ["/GPU:0", "/GPU:1", None]
+gpu_id = 0
+create_new_dataset = False 
 
-for batch_size in range(1, 8):
+# Network Architecture
+model_architecture = [
+    tf.keras.layers.LSTM(100, return_sequences=True),
+    tf.keras.layers.LSTM(100, return_sequences=True),
+    tf.keras.layers.LSTM(100, return_sequences=True),
+    tf.keras.layers.LSTM(100, return_sequences=False),
+    tf.keras.layers.Dense(6)
+    ]
+
+# looping on parameters
+varying_hyperparam = "learning_rate"
+hyperparam_values = [0.001, 0.005, 0.01, 0.05, 0.1]
+
+for trial_offset, hyperparam_value in enumerate(hyperparam_values):
 
     tf.keras.backend.clear_session()
 
-    trial_number += 1
-
-    session_mode = ["Fresh", "Resume", "Evaluate", "Override"]
-    mode_id = 0
-    gpu_name = ["/GPU:0", "/GPU:1", None]
-    gpu_id = 0
-
-    create_new_dataset = 0 # 0:No, 1:Yes
-
     # Network Hyperparameters
-    batch_size *= 1024
-    # batch_size = int(4 * 1024)
-    learning_rate = 0.005
-    dropout = 0.0
-    epochs = 100
-    initial_epoch = 0
-    window_size = 50
+    session_data = {"trial_number" : 8,
 
-    # Network Architecture
-    model_architecture = [
-        tf.keras.layers.LSTM(100, return_sequences=True),
-        tf.keras.layers.LSTM(100, return_sequences=True),
-        tf.keras.layers.LSTM(100, return_sequences=True),
-        tf.keras.layers.LSTM(100, return_sequences=False),
-        tf.keras.layers.Dense(6)
-        ]
-
-    n_features = 10
-    n_labels = 6
-
-    # Save the hyperparameters in a dictionary
-    session_data = {"trial_number" : trial_number,
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
-                    "learning_rate" : learning_rate,
-                    "window_size" : window_size,
-                    "dropout" : dropout,
-                    "batch_size" : batch_size,
-                    "epochs" : epochs,
-                    "initial_epoch" : initial_epoch,
 
-                    "n_features" : n_features,
-                    "n_labels" : n_labels,
+                    "batch_size" : int(2 * 1024),
+                    "learning_rate" : 0.005,
+                    "window_size" : 50,
+                    "dropout" : 0.0,
+                    "epochs" : 100,
+                    "initial_epoch" : 0,
+
+                    "n_features" : 10,
+                    "n_labels" : 6,
                     }
+
+    session_data[varying_hyperparam] = hyperparam_value
+    
+    session_data["trial_number"] += trial_offset
+
+    print(session_data)
 
     # create folders for the training outputs (weights, plots, loss history)
     trial_tree = utils.create_trial_tree(session_data["trial_number"], session_data["session_mode"])
@@ -79,8 +75,8 @@ for batch_size in range(1, 8):
     train_ds, val_dataset, train_flights_dict, val_flights_dict, signals_weights = create_dataset(session_data)
 
     # batch and shuffle
-    train_dataset = train_ds.batch(batch_size).shuffle(buffer_size=1000)
-    val_dataset = val_dataset.batch(batch_size).shuffle(buffer_size=1000)
+    train_dataset = train_ds.batch(session_data["batch_size"]).shuffle(buffer_size=1000)
+    val_dataset = val_dataset.batch(session_data["batch_size"]).shuffle(buffer_size=1000)
 
     # print the shape of a single batch
     for x, y in train_dataset.take(1):

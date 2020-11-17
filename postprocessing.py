@@ -102,7 +102,7 @@ def evaluate_all_flights(model, train_flights_dict, val_flights_dict, trial_fold
 
         for flight_number, one_flight_data in enumerate(flights_list):
             
-            # to speedup experimentig
+            ##to speedup experimenting
             # if flight_number > 5:
             #     break
 
