@@ -23,7 +23,7 @@ gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
 create_new_dataset = False 
 
-# Network Architecture
+# Default Network Architecture
 model_architecture = [
     tf.keras.layers.LSTM(100, return_sequences=True),
     tf.keras.layers.LSTM(100, return_sequences=True),
@@ -33,15 +33,15 @@ model_architecture = [
     ]
 
 # looping on parameters
-varying_hyperparam = "learning_rate"
-hyperparam_values = [0.001, 0.005, 0.01, 0.05, 0.1]
+varying_hyperparam = "nodes"
+hyperparam_values = [20, 60, 120, 200, 300]
 
 for trial_offset, hyperparam_value in enumerate(hyperparam_values):
 
     tf.keras.backend.clear_session()
 
     # Network Hyperparameters
-    session_data = {"trial_number" : 8,
+    session_data = {"trial_number" : 31,
 
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
@@ -57,11 +57,14 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
                     "n_labels" : 6,
                     }
 
-    session_data[varying_hyperparam] = hyperparam_value
-    
-    session_data["trial_number"] += trial_offset
+    if varying_hyperparam == "model_architecture" or varying_hyperparam == "nodes":
+        model_architecture = [tf.keras.layers.LSTM(hyperparam_value, return_sequences=True) for i in range(2)]
+        model_architecture.append(tf.keras.layers.LSTM(hyperparam_value, return_sequences=False))
+        model_architecture.append(tf.keras.layers.Dense(6))
+    else:
+        session_data[varying_hyperparam] = hyperparam_value
 
-    print(session_data)
+    session_data["trial_number"] += trial_offset
 
     # create folders for the training outputs (weights, plots, loss history)
     trial_tree = utils.create_trial_tree(session_data["trial_number"], session_data["session_mode"])

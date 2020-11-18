@@ -119,7 +119,6 @@ def start_training(session_data, model_architecture, train_ds, val_ds, signals_w
             singeleton_model.build(input_shape=(session_data["batch_size"], \
                                                 session_data["window_size"], session_data["n_features"]))
             singeleton_model.save_weights(os.path.join(weights_folder, 'ep.0000-loss200-val_loss200.hdf5'))
-
             if session_data["session_mode"] == "Resume" or session_data["session_mode"] == "Evaluate":
                 singeleton_model.load_weights(retrieved_weights_file)
 
