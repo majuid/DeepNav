@@ -14,7 +14,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # trials you want to plot
-trials = [8, 9, 10]
+trials = [20, 22]
 legends = []
 
 for trial in trials:
