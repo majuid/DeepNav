@@ -45,9 +45,9 @@ def start_training(session_data, model_architecture, train_ds, val_ds, signals_w
     # Fit Callbacks
     # learning rate scheduling callback
     def scheduler(epoch):
-        if epoch < 200:
+        if epoch < 50:
             return session_data["learning_rate"]
-        elif epoch < 300:
+        elif epoch < 100:
             return 0.5 * session_data["learning_rate"]
         else:
             return 0.25 * session_data["learning_rate"]
