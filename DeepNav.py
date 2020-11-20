@@ -34,14 +34,14 @@ model_architecture = [
 
 # looping on parameters
 varying_hyperparam = "nodes"
-hyperparam_values = [20, 60, 120, 200, 300]
+hyperparam_values = [300]
 
 for trial_offset, hyperparam_value in enumerate(hyperparam_values):
 
     tf.keras.backend.clear_session()
 
     # Network Hyperparameters
-    session_data = {"trial_number" : 31,
+    session_data = {"trial_number" : 46,
 
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
