@@ -143,7 +143,7 @@ with PdfPages(all_flights_pdf) as pdf:
         # combine all the averaged data in one array (11+10) x n
         dataset_original = np.concatenate((imu_averaged, mag_averaged, baro_averaged, kf_data), axis=1)
         header_orig = "p,q,r,a_x,a_y,a_z,m_x,m_y,m_z,h,T,q0,q1,q2,q3,Vn,Ve,Vd,Pn,Pe,Pd"
-        header_diff = "dp,dq,dr,da_x,da_y,da_z,dm_x,dm_y,dm_z,dh,dT,dq0,dq1,dq2,dq3,dVn,dVe,dVd,dPn,dPe,dPd"
+        header_diff = "p,q,r,a_x,a_y,a_z,m_x,m_y,m_z,dh,dT,dq0,dq1,dq2,dq3,dVn,dVe,dVd,dPn,dPe,dPd"
 
         # remove rows that contain nans
         dataset_original = dataset_original[~np.isnan(dataset_original).any(axis=1)]
@@ -159,13 +159,16 @@ with PdfPages(all_flights_pdf) as pdf:
         # create a differenced copy of all the data (deltas instead of absolute values)
         dataset_differenced = np.diff(dataset_original, axis=0)
 
+        # Use original features along with differenced labels
+        dataset_half_differneced = np.hstack([dataset_original[1:, 0:9], dataset_differenced[:, 9:]])
+
         # output files
         output_file_orig = os.path.join(output_dir_orig, flight_name + ".csv")
         output_file_diff = os.path.join(output_dir_diff, flight_name + ".csv")
         
         # save the datasets
         np.savetxt(output_file_orig, dataset_original, delimiter=",", header=header_orig)
-        np.savetxt(output_file_diff, dataset_differenced, delimiter=",", header=header_diff)
+        np.savetxt(output_file_diff, dataset_half_differneced, delimiter=",", header=header_diff)
 
         # save the down position plot, used for manual inspection of logs
         plot_signal(dataset_original, signal_num=-1, y_label="Down Position (meters)", title=flight_name)
