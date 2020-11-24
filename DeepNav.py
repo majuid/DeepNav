@@ -25,23 +25,23 @@ create_new_dataset = False
 
 # Default Network Architecture
 model_architecture = [
-    tf.keras.layers.LSTM(100, return_sequences=True),
-    tf.keras.layers.LSTM(100, return_sequences=True),
-    tf.keras.layers.LSTM(100, return_sequences=True),
-    tf.keras.layers.LSTM(100, return_sequences=False),
+    tf.keras.layers.LSTM(200, return_sequences=True),
+    tf.keras.layers.LSTM(200, return_sequences=True),
+    tf.keras.layers.LSTM(200, return_sequences=True),
+    tf.keras.layers.LSTM(200, return_sequences=False),
     tf.keras.layers.Dense(6)
     ]
 
 # looping on parameters
-varying_hyperparam = "nodes"
-hyperparam_values = [300]
+varying_hyperparam = None
+hyperparam_values = [None]
 
 for trial_offset, hyperparam_value in enumerate(hyperparam_values):
 
     tf.keras.backend.clear_session()
 
     # Network Hyperparameters
-    session_data = {"trial_number" : 46,
+    session_data = {"trial_number" : 60,
 
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
@@ -57,10 +57,12 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
                     "n_labels" : 6,
                     }
 
-    if varying_hyperparam == "model_architecture" or varying_hyperparam == "nodes":
+    if varying_hyperparam == None:
+        print("not looping on any hyperparameter")
+    elif varying_hyperparam == "model_architecture" or varying_hyperparam == "nodes":
         model_architecture = [tf.keras.layers.LSTM(hyperparam_value, return_sequences=True) for i in range(2)]
         model_architecture.append(tf.keras.layers.LSTM(hyperparam_value, return_sequences=False))
-        model_architecture.append(tf.keras.layers.Dense(6))
+        model_architecture.append(tf.keras.layers.Dense(6))            
     else:
         session_data[varying_hyperparam] = hyperparam_value
 
