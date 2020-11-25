@@ -7,8 +7,8 @@ Created on Mon 09 Nov 2020 | 5:25 PM
 Usage: Define the network architecture and training hyperparameters
 """
 
-# non standard library
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # suppress tf messages
 import tensorflow as tf
 from tensorflow.python.keras.backend import variable
 import training
@@ -41,7 +41,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     tf.keras.backend.clear_session()
 
     # Network Hyperparameters
-    session_data = {"trial_number" : 60,
+    session_data = {"trial_number" : 61,
 
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
@@ -74,7 +74,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     if create_new_dataset:
         session_data["dataset_name"] = None
     else:
-        session_data["dataset_name"] = "T001_logs548_F10L6_W50_16Nov2020_0531"
+        session_data["dataset_name"] = "T052_logs548_F10L6_W50_22Nov2020_0833"
         
     # create windowed datasets from the flight csv files (or retrieve an old one from binary files)
     train_ds, val_dataset, train_flights_dict, val_flights_dict, signals_weights = create_dataset(session_data)
