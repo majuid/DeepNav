@@ -14,10 +14,19 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # trials you want to plot
-trials = [54, 60]
+trials = [2, 4, 7]
+
 legends = []
+train_loss_plots = plt.subplot(211)
+val_loss_plots = plt.subplot(212)
+
+# if you want to plot starting from a certain epoch (for zooming purposes)
+zoom = 5
 
 for trial in trials:
+
+    # add this trial label to the legend
+    legends.append("trial " + str(trial).zfill(3))
     
     trial_log_file = os.path.join("DeepNav_results", "trial_" + str(trial).zfill(3), "model_history_log.csv")
     # check if there is a log csv file for this trial and read it as a pandas frame
@@ -30,35 +39,29 @@ for trial in trials:
     # extract the training and validation losses vectors from the data frame
     df.head()
     df = df[["loss", "val_loss"]]
-    
-    loss = df.loss
+    train_loss = df.loss
     val_loss = df.val_loss
     
-    # if you want to plot starting from a certain epoch (for zooming purposes)
-    zoom = 3
-    
-    epoch = np.linspace(1, len(loss)-1, len(loss)) - zoom
+    # create epochs vector (x-axis)
+    epochs = np.linspace(1, len(train_loss)-1, len(train_loss)) - zoom
     
     # print total epochs, minimum loss and val_loss along with their epochs
     print("trial:", trial, ", epochs:", val_loss.size, end=", ")
-    print("min_loss:", f'{np.min(loss):.4f}', "at epoch", np.argmin(loss), end=", ") 
-    print("min val_loss:", f'{np.min(val_loss):.4f}', "at epoch", np.argmin(val_loss),)
+    print("min training loss:", f'{np.min(train_loss):.4f}', "at epoch", np.argmin(train_loss), end=", ") 
+    print("min validation loss:", f'{np.min(val_loss):.4f}', "at epoch", np.argmin(val_loss),)
 
-
-    plt.plot(epoch[zoom:], loss[zoom:])
-    plt.plot(epoch[zoom:], val_loss[zoom:])
-    plt.grid(True)
+    train_loss_plots.plot(epochs[zoom:], train_loss[zoom:])
+    val_loss_plots.plot(epochs[zoom:], val_loss[zoom:])
     
-    # add this trial labels to the legend
-    legends.append("trial " + str(trial).zfill(3) + " training loss")
-    legends.append("trial " + str(trial).zfill(3) + " validation loss")
 
+train_loss_plots.grid(True)
+train_loss_plots.set_ylabel("Training Loss (MAE)")
+train_loss_plots.legend(legends)
 
+val_loss_plots.grid(True)
+val_loss_plots.set_ylabel("Validation Loss (MAE)")
+val_loss_plots.legend(legends)
 
-plt.legend(legends)
 plt.xlabel("epochs")
-plt.ylabel("Loss (MAE)")
-
 plt.savefig("losses.pdf")
-
 plt.show()
