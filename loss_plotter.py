@@ -14,14 +14,13 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # trials you want to plot
-trials = [2, 4, 7]
+trials = [54, 71]
+# if you want to plot starting from a certain epoch (for zooming purposes)
+zoom = 1
 
 legends = []
 train_loss_plots = plt.subplot(211)
 val_loss_plots = plt.subplot(212)
-
-# if you want to plot starting from a certain epoch (for zooming purposes)
-zoom = 5
 
 for trial in trials:
 
@@ -43,7 +42,7 @@ for trial in trials:
     val_loss = df.val_loss
     
     # create epochs vector (x-axis)
-    epochs = np.linspace(1, len(train_loss)-1, len(train_loss)) - zoom
+    epochs = np.linspace(zoom, len(train_loss)-1, len(train_loss))
     
     # print total epochs, minimum loss and val_loss along with their epochs
     print("trial:", trial, ", epochs:", val_loss.size, end=", ")

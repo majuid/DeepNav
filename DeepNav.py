@@ -40,7 +40,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     tf.keras.backend.clear_session()
 
     # Network Hyperparameters
-    session_data = {"trial_number" : 61,
+    session_data = {"trial_number" : 71,
 
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
@@ -70,15 +70,13 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     # create folders for the training outputs (weights, plots, loss history)
     trial_tree = utils.create_trial_tree(session_data["trial_number"], session_data["session_mode"])
 
-    # w_x	w_y	w_z	a_x	a_y	a_z	m_x	m_y	m_z	h	T	q0 q1 q2 q3 Vn Ve Vd Pn Pe Pd
-
     if create_new_dataset:
         session_data["dataset_name"] = None
         colum_names = {"features"     : ["w_x", "w_y", "w_z", "a_x", "a_y", "a_z", "m_x", "m_y", "m_z"],
                        "features_diff": ["h"],
                        "labels"       : ["Vn", "Ve", "Vd", "Pn", "Pe", "Pd"]}
     else:
-        session_data["dataset_name"] = "T052_logs548_F10L6_W50_22Nov2020_0833"
+        session_data["dataset_name"] = "T071_logs548_F10L6_W50_30Nov2020_2157"
         colum_names = {}
         
     # create windowed datasets from the flight csv files (or retrieve an old one from binary files)

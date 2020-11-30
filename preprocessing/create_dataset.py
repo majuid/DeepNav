@@ -76,11 +76,13 @@ def create_dataset(session_data, colum_names):
         
         # count the csv files in both training and validation subdirectories
         n_logs = len([filename for filename in glob.iglob(csvs_root_directory + '/*/*', recursive=True)])
+        session_data["n_features"] = len(colum_names["features"]) + len(colum_names["features_diff"])
+        n_features = str(session_data["n_features"])
+        n_labels = str(len(colum_names["labels"]))
         
         # a dataset name contains trial number, number of features, labels & logs, window size & time of creation
         dataset_name = "T" + str(session_data["trial_number"]).zfill(3) + "_logs" + str(n_logs) + \
-                       "_F" + str(session_data["n_features"]) + \
-                       "L" + str(session_data["n_labels"]) + "_W" + str(session_data["window_size"]) + \
+                       "_F" + n_features + "L" + n_labels + "_W" + str(session_data["window_size"]) + \
                        "_" + datetime.datetime.now().strftime("%d%b%Y") + \
                        "_" + datetime.datetime.now().strftime("%H%M")
 
@@ -120,7 +122,7 @@ def create_dataset(session_data, colum_names):
                 labels = np.diff(labels, axis=0)
 
                 # stack differenced and non-differecnced features
-                features = np.vstack((features,features_diff))
+                features = np.hstack((features,features_diff))
                 
                 windowed_features = []
                 windowed_labels = []
@@ -165,9 +167,10 @@ def create_dataset(session_data, colum_names):
             pickle.dump(flights_dictionaries, flights_dict_file,  protocol=pickle.HIGHEST_PROTOCOL)
 
         # save the colum names (what are the features, labels and what features are diffferenced)
-        with open(os.path.join(datasets_directory, "features_labels"), 'w') as f:
+        with open(os.path.join(datasets_directory, "features_labels_names.txt"), 'w') as f:
             for key, value in colum_names.items():
-                f.write(key, ":\n", value, "\n")
+                line = key + ":\n" + ','.join(map(str, value)) + "\n"
+                f.write(line)
         
     # create weights to pay more attention for smaller signals when training
     average_absolutes = np.mean(np.abs(combined_windowed_labels["training"]), axis = 0)

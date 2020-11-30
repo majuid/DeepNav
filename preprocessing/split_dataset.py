@@ -19,7 +19,7 @@ os.mkdir(train_folder)
 valid_folder = os.path.join(csvs_dir, "validation")
 os.mkdir(valid_folder)
 
-train_valid_ratio = 0.85
+train_valid_ratio = 0.8
 split = int(len(csvs_list) * train_valid_ratio)
 
 for log in csvs_list[:split]:
