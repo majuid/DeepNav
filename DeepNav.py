@@ -20,7 +20,7 @@ session_mode = ["Fresh", "Resume", "Evaluate", "Override"]
 mode_id = 0
 gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
-create_new_dataset = False 
+create_new_dataset = True 
 
 # Default Network Architecture
 model_architecture = [
@@ -40,7 +40,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     tf.keras.backend.clear_session()
 
     # Network Hyperparameters
-    session_data = {"trial_number" : 71,
+    session_data = {"trial_number" : 73,
 
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
@@ -50,10 +50,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
                     "window_size" : 50,
                     "dropout" : 0.0,
                     "epochs" : 100,
-                    "initial_epoch" : 0,
-
-                    "n_features" : 10,
-                    "n_labels" : 6,
+                    "initial_epoch" : 0
                     }
 
     if varying_hyperparam == None:

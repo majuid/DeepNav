@@ -65,6 +65,7 @@ def create_dataset(session_data, colum_names):
             combined_windowed_features = {"training":npzfile["features_tr"], "validation":npzfile["features_val"]}
             combined_windowed_labels = {"training":npzfile["labels_tr"], "validation":npzfile["labels_val"]}
 
+        session_data["n_features"] = combined_windowed_features["validation"].shape[-1]
         # load the flights dictionaries
         with open(os.path.join(datasets_directory, "flights_dictionaries"), 'rb') as flights_dict_file:
             flights_dictionaries = pickle.load(flights_dict_file)

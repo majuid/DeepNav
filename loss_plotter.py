@@ -14,7 +14,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # trials you want to plot
-trials = [54, 71]
+trials = [54, 71, 72]
 # if you want to plot starting from a certain epoch (for zooming purposes)
 zoom = 1
 
