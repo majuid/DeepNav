@@ -10,7 +10,6 @@ Usage: Define the network architecture and training hyperparameters
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # suppress tf messages
 import tensorflow as tf
-from tensorflow.python.keras.backend import variable
 import training
 import utils
 import postprocessing
@@ -21,7 +20,7 @@ session_mode = ["Fresh", "Resume", "Evaluate", "Override"]
 mode_id = 0
 gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
-create_new_dataset = False 
+create_new_dataset = True 
 
 # Default Network Architecture
 model_architecture = [
@@ -41,7 +40,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     tf.keras.backend.clear_session()
 
     # Network Hyperparameters
-    session_data = {"trial_number" : 61,
+    session_data = {"trial_number" : 73,
 
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
@@ -51,10 +50,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
                     "window_size" : 50,
                     "dropout" : 0.0,
                     "epochs" : 100,
-                    "initial_epoch" : 0,
-
-                    "n_features" : 10,
-                    "n_labels" : 6,
+                    "initial_epoch" : 0
                     }
 
     if varying_hyperparam == None:
@@ -73,11 +69,15 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
 
     if create_new_dataset:
         session_data["dataset_name"] = None
+        colum_names = {"features"     : ["w_x", "w_y", "w_z", "a_x", "a_y", "a_z", "m_x", "m_y", "m_z"],
+                       "features_diff": ["h"],
+                       "labels"       : ["Vn", "Ve", "Vd", "Pn", "Pe", "Pd"]}
     else:
-        session_data["dataset_name"] = "T052_logs548_F10L6_W50_22Nov2020_0833"
+        session_data["dataset_name"] = "T071_logs548_F10L6_W50_30Nov2020_2157"
+        colum_names = {}
         
     # create windowed datasets from the flight csv files (or retrieve an old one from binary files)
-    train_ds, val_dataset, train_flights_dict, val_flights_dict, signals_weights = create_dataset(session_data)
+    train_ds, val_dataset, train_flights_dict, val_flights_dict, signals_weights = create_dataset(session_data, colum_names)
 
     # batch and shuffle
     train_dataset = train_ds.batch(session_data["batch_size"]).shuffle(buffer_size=1000)

@@ -9,7 +9,7 @@ import random
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-csvs_dir = os.path.join(os.pardir, "DeepNav_data", "combined_csvs", "trimmed_csvs", "differenced")
+csvs_dir = os.path.join(os.pardir, "DeepNav_data", "combined_csvs", "trimmed")
 csvs_list = sorted(os.listdir(csvs_dir))
 
 random.shuffle(csvs_list)

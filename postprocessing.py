@@ -261,7 +261,7 @@ def summarize_session(trial_tree, model, session_data, flights_summary):
         header = next(csv_reader)
 
     #remove unnecessary session_data items
-    session_data.pop("n_labels") 
+    # session_data.pop("n_labels") 
     session_data.pop("n_features") 
     session_data.pop("initial_epoch") 
     
