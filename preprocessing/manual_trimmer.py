@@ -8,7 +8,6 @@ and in "flight_names.csv" define a new start and end time, or write delete
 """
 
 import os
-import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -34,26 +33,19 @@ def plot_signal(dataset, signal_num, title, y_label="Down Position"):
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # input and output directories
-input_dir = os.path.join(os.path.pardir, "DeepNav_data", "combined_csvs")
-input_csvs_orig = os.path.join(input_dir, "untrimmed", "original")
-input_csvs_diff = os.path.join(input_dir, "untrimmed", "differenced")
-deleted_csvs_orig = os.path.join(input_dir, "deleted_csvs", "original")
-deleted_csvs_diff = os.path.join(input_dir, "deleted_csvs", "differenced")
-trimmed_csvs_orig = os.path.join(input_dir, "trimmed_csvs", "original")
-trimmed_csvs_diff = os.path.join(input_dir, "trimmed_csvs", "differenced")
+input_root_dir = os.path.join(os.path.pardir, "DeepNav_data", "combined_csvs")
+input_csvs_dir = os.path.join(input_root_dir, "untrimmed")
+deleted_csvs_dir = os.path.join(input_root_dir, "deleted")
+trimmed_csvs_dir = os.path.join(input_root_dir, "trimmed")
 
-if not os.path.isdir(deleted_csvs_orig): 
-    os.makedirs(deleted_csvs_orig)
-if not os.path.isdir(deleted_csvs_diff): 
-    os.makedirs(deleted_csvs_diff)
-if not os.path.isdir(trimmed_csvs_orig): 
-    os.makedirs(trimmed_csvs_orig)
-if not os.path.isdir(trimmed_csvs_diff): 
-    os.makedirs(trimmed_csvs_diff)
+if not os.path.isdir(deleted_csvs_dir): 
+    os.makedirs(deleted_csvs_dir)
+if not os.path.isdir(trimmed_csvs_dir): 
+    os.makedirs(trimmed_csvs_dir)
 
 # read the names of the logs from txt (created manually), along with
 # the required start and end times
-flight_names_csv = os.path.join(input_dir, "flight_names.csv")
+flight_names_csv = os.path.join(input_root_dir, "flight_names.csv")
 with open(flight_names_csv, 'r') as f:
     logs_lines = f.readlines()
 
@@ -63,7 +55,7 @@ deleted_list = []
 total_flights_num = len(logs_lines)
 
 # to create multi page pdf plot
-pdf_name = os.path.join(input_dir, "trimmed_down_positions.pdf")
+pdf_name = os.path.join(input_root_dir, "trimmed_down_positions.pdf")
 with PdfPages(pdf_name) as pdf:
 
     for flight_num, bad_logs_line in enumerate(logs_lines):
@@ -75,12 +67,11 @@ with PdfPages(pdf_name) as pdf:
         log_name, start, end = bad_logs_line.strip().split(",")
         flight_name = log_name + ".csv"
 
-        print("processing", flight_num, "/", total_flights_num)
+        print("trimming", flight_num, "/", total_flights_num)
 
         # read this log's csv
         try:
-            flight_data = np.genfromtxt(os.path.join(input_csvs_orig, flight_name), delimiter=',', skip_header=1)
-            flight_data_diff = np.genfromtxt(os.path.join(input_csvs_diff, flight_name), delimiter=',', skip_header=1)
+            flight_data = np.genfromtxt(os.path.join(input_csvs_dir, flight_name), delimiter=',', skip_header=1)
         except:
             # csv not found
             continue
@@ -91,8 +82,7 @@ with PdfPages(pdf_name) as pdf:
             start = None
         elif start == "delete":
             deleted_list.append(log_name)
-            os.rename(os.path.join(input_csvs_orig, flight_name), os.path.join(deleted_csvs_orig, flight_name))
-            os.rename(os.path.join(input_csvs_diff, flight_name), os.path.join(deleted_csvs_diff, flight_name))
+            os.rename(os.path.join(input_csvs_dir, flight_name), os.path.join(deleted_csvs_dir, flight_name))
             continue
         else:
             start = int(float(start) * 60 * 5)
@@ -106,22 +96,18 @@ with PdfPages(pdf_name) as pdf:
 
         # trim
         flight_data = flight_data[start:end, :]
-        flight_data_diff = flight_data_diff[start:end, :]
 
         # output files names
-        output_file_orig = os.path.join(trimmed_csvs_orig, flight_name)
-        output_file_diff = os.path.join(trimmed_csvs_diff, flight_name)
+        output_file = os.path.join(trimmed_csvs_dir, flight_name)
 
         # save the trimmed files
-        header_orig = "p,q,r,a_x,a_y,a_z,m_x,m_y,m_z,h,T,q0,q1,q2,q3,Vn,Ve,Vd,Pn,Pe,Pd"
-        header_diff = "dp,dq,dr,da_x,da_y,da_z,dm_x,dm_y,dm_z,dh,dT,dq0,dq1,dq2,dq3,dVn,dVe,dVd,dPn,dPe,dPd"
-        np.savetxt(output_file_orig, flight_data, delimiter=",", header=header_orig)
-        np.savetxt(output_file_diff, flight_data_diff, delimiter=",", header=header_diff)
+        header = "w_x,w_y,w_z,a_x,a_y,a_z,m_x,m_y,m_z,h,T,q0,q1,q2,q3,Vn,Ve,Vd,Pn,Pe,Pd"
+        np.savetxt(output_file, flight_data, delimiter=",", header=header, comments='')
         
         # save the down position plot, to compare it with the originals
         plot_signal(flight_data, signal_num=-1, y_label="Down Position (meters)", title=log_name)
 
 # write the names of the deleted files to a txt
-deleted_flight_names_csv = os.path.join(input_dir, "deleted_logs.csv")
+deleted_flight_names_csv = os.path.join(input_root_dir, "deleted_logs.csv")
 with open(deleted_flight_names_csv, "w") as outfile:
     outfile.write("\n".join(deleted_list))

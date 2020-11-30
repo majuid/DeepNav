@@ -8,12 +8,13 @@ Created on Tue Jul 7 15:48:47 2020
 
 import os
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 import datetime
 import pickle
 import glob
 
-def create_dataset(session_data):
+def create_dataset(session_data, colum_names):
     """
     Arguments
         session_data: A dictionary containing the following relevant values
@@ -48,7 +49,7 @@ def create_dataset(session_data):
     """
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     data_directory = os.path.join(os.path.pardir, "DeepNav_data")
-
+    
     # training and validation folders
     sets_subdirs = ["training", "validation"]
 
@@ -71,7 +72,7 @@ def create_dataset(session_data):
     # if no windowed dataset available, window the csv files 
     else:
 
-        csvs_root_directory = os.path.join(data_directory, "combined_csvs", "trimmed_csvs", "differenced")
+        csvs_root_directory = os.path.join(data_directory, "combined_csvs", "trimmed")
         
         # count the csv files in both training and validation subdirectories
         n_logs = len([filename for filename in glob.iglob(csvs_root_directory + '/*/*', recursive=True)])
@@ -88,7 +89,7 @@ def create_dataset(session_data):
         if not os.path.isdir(datasets_directory):
             os.makedirs(datasets_directory)
         
-        print("creating", dataset_name)
+        print("creating", dataset_name, "...")
         session_data["dataset_name"] = dataset_name
 
         # dictionary of two dictionaries, (training & validation), each subdictionary is a list of windows
@@ -108,10 +109,18 @@ def create_dataset(session_data):
 
             for flight_file in sorted(os.listdir(csvs_directory)):
                 
-                # read flight data from csv and split features from labels
-                one_flight = np.genfromtxt(os.path.join(csvs_directory, flight_file), delimiter=',', skip_header=1)
-                features = one_flight[:, 0:session_data["n_features"]]
-                labels = one_flight[:, -session_data["n_labels"]:]
+                # read flight data from csv to features and labels dataframes
+                csv_file_name = os.path.join(csvs_directory, flight_file)
+                features = pd.read_csv(csv_file_name, usecols=colum_names["features"]).to_numpy()[1:,:]
+                features_diff = pd.read_csv(csv_file_name, usecols=colum_names["features_diff"]).to_numpy()
+                labels = pd.read_csv(csv_file_name, usecols=colum_names["labels"]).to_numpy()
+                
+                # apply differencing to labels
+                features_diff = np.diff(features_diff, axis=0)
+                labels = np.diff(labels, axis=0)
+
+                # stack differenced and non-differecnced features
+                features = np.vstack((features,features_diff))
                 
                 windowed_features = []
                 windowed_labels = []
@@ -154,6 +163,11 @@ def create_dataset(session_data):
         # save the flights dictionaries
         with open(os.path.join(datasets_directory, "flights_dictionaries"), 'wb') as flights_dict_file:
             pickle.dump(flights_dictionaries, flights_dict_file,  protocol=pickle.HIGHEST_PROTOCOL)
+
+        # save the colum names (what are the features, labels and what features are diffferenced)
+        with open(os.path.join(datasets_directory, "features_labels"), 'w') as f:
+            for key, value in colum_names.items():
+                f.write(key, ":\n", value, "\n")
         
     # create weights to pay more attention for smaller signals when training
     average_absolutes = np.mean(np.abs(combined_windowed_labels["training"]), axis = 0)

@@ -2,18 +2,19 @@
 
 """
 ulog2csv.py produces a directory containing different csv messages for each
-ulg file. This script combines these csvs into two csvs per log, one is the combined
-averaged data, and the other is a differenced version. It also creates a list of the
+ulg file. This script combines these csvs into one csv per log, containing the combined
+averaged data with as many timesteps as the ekf. It also creates a list of the
 log files names and one PDF file containing the down positions of all flights
 """
 
 import os
 import csv
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-def plot_signal(dataset, signal_num, title, y_label="Down Position", signal_name=None):
+def plot_signal(dataset, signal_num, title, y_label="Down Position"):
     """
     Arguments
         dataset: 2D np array, colums are different signals, rows are timesteps
@@ -30,145 +31,130 @@ def plot_signal(dataset, signal_num, title, y_label="Down Position", signal_name
     pdf.savefig()
     plt.close()
 
-def compress_sensor_data(sensor_timestamps, kf_timestamps, sensor_data):
+def compress_sensor_data(kf_timestamps, sensor_msg):
     """
     compresses an array of measurements to be of the same length of the 
     kalman filter output (by averaging between each two KF steps)
     
     Arguments
-        sensor_timestamps: numpy array of timestamps of the sensor measurements
         kf_timestamps: numpy array of timestamps of the EKF outputs
-        sensor_data: numpy array of the sensor measurements (same length as sensor_timestamps)
+        sensor_msg: a dictionary that has two np arrays:
+                    timestamps: timestamps of the sensor measurements
+                    data: sensor measurements (same length as sensor_timestamps)
     Return
         sensor_averaged: numpy array of sensor data of the same length of the KF outputs
     """
 
     # search for kf timestamps in the sensor timestamps
-    sensor_indices = np.searchsorted(sensor_timestamps, kf_timestamps)
+    sensor_indices = np.searchsorted(sensor_msg["timestamps"], kf_timestamps)   
     
-    # altimeter has only one colum
-    if len(sensor_data.shape) < 2:
-        n_colums = 1
-    else:
-        n_colums = sensor_data.shape[1]
-    
-    sensor_averaged = np.zeros(shape = (sensor_indices.size, n_colums))
-    i = 0
-    startIdx = 0
-
     # average all sensor data received between each two consecutive kf stamps    
+    startIdx = 0
+    i = 0
+    sensor_averaged = np.zeros((sensor_indices.size, sensor_msg["data"].shape[1]))
     for endIdx in sensor_indices:
-        sensor_averaged[i] = np.mean(sensor_data[startIdx:endIdx], axis = 0)
+        sensor_averaged[i] = np.mean(sensor_msg["data"][startIdx:endIdx], axis = 0)
         startIdx = endIdx
-        i = i + 1
+        i += 1
 
-    return sensor_averaged
-
-def read_file(file_name, colums):
-    """
-    reads the first colum (timestamps) of a csv file into integer np array
-    and other specified (data) colums into float np array 
-    """
-    sensor_timestamps = np.genfromtxt(file_name, delimiter=',', skip_header=1,  usecols=(0), dtype = np.int32)
-    sensor_data = np.genfromtxt(file_name, delimiter=',', skip_header=1,  usecols=colums )
-    
-    return sensor_timestamps, sensor_data
+    return np.array(sensor_averaged)
 
 # change the working directory to the script directory
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 input_dir = os.path.join(os.path.pardir, "DeepNav_data", "flight_csvs")
-output_dir = os.path.join(os.path.pardir, "DeepNav_data", "combined_csvs")
-output_dir_orig = os.path.join(output_dir, "untrimmed", "original")
-output_dir_diff = os.path.join(output_dir, "untrimmed", "differenced")
+output_root_dir = os.path.join(os.path.pardir, "DeepNav_data", "combined_csvs")
+output_csvs_dir = os.path.join(output_root_dir, "untrimmed")
 
-if not os.path.isdir(output_dir_orig) :
-    os.makedirs(output_dir_orig)
-
-if not os.path.isdir(output_dir_diff) :
-    os.makedirs(output_dir_diff)
+if not os.path.isdir(output_csvs_dir) :
+    os.makedirs(output_csvs_dir)
 
 # create a csv containing the names of all the flights
 # this will be used for manual inspection and cleaning
 flight_names = sorted(os.listdir(input_dir))
-flight_names_csv = os.path.join(output_dir, "flight_names.csv")
+flight_names_csv = os.path.join(output_root_dir, "flight_names.csv")
 with open(flight_names_csv, "w") as f:
     writer = csv.writer(f)
     for flight_name in flight_names:
         writer.writerow([flight_name])
 
+messages = {"ekf" : {"file" : '_estimator_status',     "cols" : ["states["+str(i)+"]" for i in range(10)]},
+            "mag" : {"file" : '_vehicle_magnetometer', "cols" : ["magnetometer_ga["+str(i)+"]" for i in range(3)]},
+            "baro": {"file" : '_vehicle_air_data',     "cols" : ["baro_alt_meter", "baro_temp_celcius"]},
+            "imu" : {"file" : '_sensor_combined',      "cols" : ["gyro_rad["+str(i)+"]" for i in range(3)] + \
+                                                                ["accelerometer_m_s2["+str(i)+"]" for i in range(3)]},
+            }
+
 # iterate on the flights (one folder per flight)
 total_flights_num = len(flight_names) - 1
 
 # combine all the down position plots (of all flights) in a single pdf
-all_flights_pdf = os.path.join(output_dir, "all_down_positions.pdf")
+all_flights_pdf = os.path.join(output_root_dir, "all_down_positions.pdf")
 with PdfPages(all_flights_pdf) as pdf:
 
     for flight_number, flight_name in enumerate(flight_names):
         
-        print("processing flight number", flight_number, "/", total_flights_num, "\t", flight_name)
+        print("combining csvs for flight number", flight_number, "/", total_flights_num, "\t", flight_name)
         
-        # skip logs processed in earlier run
-        if os.path.isfile(os.path.join(output_dir_orig, flight_name + ".csv")) : 
+        # skip logs processed in earlier runs
+        if os.path.isfile(os.path.join(output_csvs_dir, flight_name + ".csv")) : 
             print("This log was processed earlier, skipping to the next!")
             continue
-
-        # input files names
+        
         base_name = os.path.join(input_dir, flight_name, flight_name)
-        kf_file = base_name + '_estimator_status_0.csv'
-        imu_file = base_name +  '_sensor_combined_0.csv'
-        baro_file = base_name +  '_vehicle_air_data_0.csv'
-        mag_file = base_name +  '_vehicle_magnetometer_0.csv'
+        
+        log_is_corrupted = False
+        
+        for message in messages.values():
+            file_name = base_name + message["file"] + "_0.csv"
+            if os.path.isfile(file_name):
+                message["timestamps"] = pd.read_csv(file_name, usecols=["timestamp"]).to_numpy().squeeze()
+                message["data"] = pd.read_csv(file_name, usecols=message["cols"])[message["cols"]].to_numpy()
+            else:
+                log_is_corrupted = True
+                break
 
-        # read files
-        kf_timestamps, kf_data = read_file(kf_file, colums = range(1,11)) # attitude, velocity & position components
-        imu_timestamps, imu_data = read_file(imu_file, colums = [1,2,3,6,7,8]) # gyro & accel measurements
-        baro_timestamps, baro_data = read_file(baro_file, colums = [1,2]) # altitude & temperature 
-        mag_timestamps, mag_data = read_file(mag_file, colums = [1,2,3]) # 3 magnetic field coponents
+        if log_is_corrupted:
+            print("flight number", flight_number, "has a missing csv file, skipping!")
+            continue
 
         # trim the kf vector to start after every individual sensor
-        kfStart = kf_timestamps[0]
-        latest_starter = max([imu_timestamps[0], baro_timestamps[0], mag_timestamps[0]])
+        ekf_timestamps = messages["ekf"]["timestamps"]
+        kfStart = ekf_timestamps[0]
+        latest_starter = max([messages["imu"]["timestamps"][0], messages["baro"]["timestamps"][0],
+                              messages["mag"]["timestamps"][0]])
         kfStartIdx = 0
         if kfStart < latest_starter:
-            kfStartIdx = np.argmax(kf_timestamps>latest_starter)
-        kf_timestamps = kf_timestamps[kfStartIdx:]
-        kf_data = kf_data[kfStartIdx:]
+            kfStartIdx = np.argmax(ekf_timestamps>latest_starter)
+        ekf_timestamps = ekf_timestamps[kfStartIdx:]
+        messages["ekf"]["data"] = messages["ekf"]["data"][kfStartIdx:]
 
         # average all sensor data received between each two consecutive kf stamps
-        imu_averaged = compress_sensor_data(imu_timestamps, kf_timestamps, imu_data)
-        baro_averaged = compress_sensor_data(baro_timestamps, kf_timestamps, baro_data)
-        mag_averaged = compress_sensor_data(mag_timestamps, kf_timestamps, mag_data)
+        for msg_key, message in messages.items():
+            if msg_key != "ekf":
+                message["data"] = compress_sensor_data(ekf_timestamps, message)
         
         # combine all the averaged data in one array (11+10) x n
-        dataset_original = np.concatenate((imu_averaged, mag_averaged, baro_averaged, kf_data), axis=1)
-        header_orig = "p,q,r,a_x,a_y,a_z,m_x,m_y,m_z,h,T,q0,q1,q2,q3,Vn,Ve,Vd,Pn,Pe,Pd"
-        header_diff = "p,q,r,a_x,a_y,a_z,m_x,m_y,m_z,dh,dT,dq0,dq1,dq2,dq3,dVn,dVe,dVd,dPn,dPe,dPd"
+        combined_data = np.concatenate((messages["imu"]["data"], messages["mag"]["data"],
+                                        messages["baro"]["data"], messages["ekf"]["data"]), axis=1)
+        header = "w_x,w_y,w_z,a_x,a_y,a_z,m_x,m_y,m_z,h,T,q0,q1,q2,q3,Vn,Ve,Vd,Pn,Pe,Pd"
 
         # remove rows that contain nans
-        dataset_original = dataset_original[~np.isnan(dataset_original).any(axis=1)]
+        combined_data = combined_data[~np.isnan(combined_data).any(axis=1)]
 
-        # remove the ground time in the beggining and end of flight
+        # remove the ground time in before takeoff and after landing
         takeoff_height = -1
         land_height = -1
-        down_position = dataset_original[:,-1]
+        down_position = combined_data[:,-1]
         takeoff_index = np.argmax(down_position<takeoff_height)
         land_index = -1 - np.argmax(down_position[::-1]<land_height)
-        dataset_original = dataset_original[takeoff_index:land_index, :]
+        combined_data = combined_data[takeoff_index:land_index, :]
 
-        # create a differenced copy of all the data (deltas instead of absolute values)
-        dataset_differenced = np.diff(dataset_original, axis=0)
-
-        # Use original features along with differenced labels
-        dataset_half_differneced = np.hstack([dataset_original[1:, 0:9], dataset_differenced[:, 9:]])
-
-        # output files
-        output_file_orig = os.path.join(output_dir_orig, flight_name + ".csv")
-        output_file_diff = os.path.join(output_dir_diff, flight_name + ".csv")
+        # output file
+        output_file = os.path.join(output_csvs_dir, flight_name + ".csv")
         
         # save the datasets
-        np.savetxt(output_file_orig, dataset_original, delimiter=",", header=header_orig)
-        np.savetxt(output_file_diff, dataset_half_differneced, delimiter=",", header=header_diff)
+        np.savetxt(output_file, combined_data, delimiter=",", header=header, comments='')
 
         # save the down position plot, used for manual inspection of logs
-        plot_signal(dataset_original, signal_num=-1, y_label="Down Position (meters)", title=flight_name)
+        plot_signal(combined_data, signal_num=-1, y_label="Down Position (meters)", title=flight_name)

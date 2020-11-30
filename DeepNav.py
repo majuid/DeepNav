@@ -10,7 +10,6 @@ Usage: Define the network architecture and training hyperparameters
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # suppress tf messages
 import tensorflow as tf
-from tensorflow.python.keras.backend import variable
 import training
 import utils
 import postprocessing
@@ -71,13 +70,19 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     # create folders for the training outputs (weights, plots, loss history)
     trial_tree = utils.create_trial_tree(session_data["trial_number"], session_data["session_mode"])
 
+    # w_x	w_y	w_z	a_x	a_y	a_z	m_x	m_y	m_z	h	T	q0 q1 q2 q3 Vn Ve Vd Pn Pe Pd
+
     if create_new_dataset:
         session_data["dataset_name"] = None
+        colum_names = {"features"     : ["w_x", "w_y", "w_z", "a_x", "a_y", "a_z", "m_x", "m_y", "m_z"],
+                       "features_diff": ["h"],
+                       "labels"       : ["Vn", "Ve", "Vd", "Pn", "Pe", "Pd"]}
     else:
         session_data["dataset_name"] = "T052_logs548_F10L6_W50_22Nov2020_0833"
+        colum_names = {}
         
     # create windowed datasets from the flight csv files (or retrieve an old one from binary files)
-    train_ds, val_dataset, train_flights_dict, val_flights_dict, signals_weights = create_dataset(session_data)
+    train_ds, val_dataset, train_flights_dict, val_flights_dict, signals_weights = create_dataset(session_data, colum_names)
 
     # batch and shuffle
     train_dataset = train_ds.batch(session_data["batch_size"]).shuffle(buffer_size=1000)
