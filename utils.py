@@ -9,6 +9,8 @@ import os, shutil
 
 def create_trial_tree(trial_number, session_mode):
 
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
     # main folder of this trial (holds results, weights and training log)
     trial_root_folder = os.path.join("DeepNav_results", "trial_" + str(trial_number).zfill(3))
 
@@ -23,14 +25,16 @@ def create_trial_tree(trial_number, session_mode):
                    "history_csv_file" : history_csv_file
                  }
 
-    if session_mode == "Resume" or session_mode == "Evaluate":
+    if session_mode == "Resume":
         return trial_tree
     
     if session_mode == "Override":
-        shutil.rmtree(trial_root_folder)    
-    
-    os.makedirs(weights_folder)
+        shutil.rmtree(trial_root_folder)   
 
+    if session_mode == "Evaluate":
+        shutil.rmtree(os.path.join(trial_root_folder, "training"))
+        shutil.rmtree(os.path.join(trial_root_folder, "validation"))
+     
     # tree levels
     folders_level_1 = ["training", "validation"]
     folders_level_2 = ["differenced", "reconstructed"]
@@ -47,6 +51,11 @@ def create_trial_tree(trial_number, session_mode):
     for folder_level_1 in folders_level_1:
         output_csv_folder = os.path.join(trial_root_folder, folder_level_1, "reconstructed", "nn_output_csv")
         os.mkdir(output_csv_folder)
+
+    if session_mode == "Evaluate":
+        return trial_tree
+        
+    os.makedirs(weights_folder)
    
     print("\n\n *** \t Created ", trial_root_folder, "\t ***")
 
