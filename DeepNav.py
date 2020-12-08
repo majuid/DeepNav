@@ -17,10 +17,10 @@ from preprocessing.create_dataset import create_dataset
 
 # Session Parameters
 session_mode = ["Fresh", "Resume", "Evaluate", "Override"]
-mode_id = 0
+mode_id = 2
 gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
-create_new_dataset = True 
+create_new_dataset = False 
 
 # Default Network Architecture
 model_architecture = [
@@ -40,13 +40,13 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     tf.keras.backend.clear_session()
 
     # Network Hyperparameters
-    session_data = {"trial_number" : 73,
+    session_data = {"trial_number" : 4,
 
                     "session_mode" : session_mode[mode_id],
                     "gpu_name" : gpu_name[gpu_id],
 
-                    "batch_size" : int(2 * 1024),
-                    "learning_rate" : 0.005,
+                    "batch_size" : int(1 * 1024),
+                    "learning_rate" : 0.001,
                     "window_size" : 50,
                     "dropout" : 0.0,
                     "epochs" : 100,
@@ -73,7 +73,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
                        "features_diff": ["h"],
                        "labels"       : ["Vn", "Ve", "Vd", "Pn", "Pe", "Pd"]}
     else:
-        session_data["dataset_name"] = "T071_logs548_F10L6_W50_30Nov2020_2157"
+        session_data["dataset_name"] = "T001_logs548_F10L6_W50_03Dec2020_1542_FMUV5"
         colum_names = {}
         
     # create windowed datasets from the flight csv files (or retrieve an old one from binary files)
@@ -97,7 +97,7 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
 
     # for every flight, plot all states (truth vs predictions)
     flights_summary = postprocessing.evaluate_all_flights(model, train_flights_dict, val_flights_dict, \
-                                        trial_tree["trial_root_folder"], n_extreme_flights=10)
+                                        trial_tree["trial_root_folder"], n_extreme_flights=30)
 
     # add the network configuration and performance to the summary csv
     postprocessing.summarize_session(trial_tree, model, session_data, flights_summary)

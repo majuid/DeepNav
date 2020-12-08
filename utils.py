@@ -47,10 +47,11 @@ def create_trial_tree(trial_number, session_mode):
                 leaf_folder = os.path.join(trial_root_folder, folder_level_1, folder_level_2, folder_level_3)
                 os.makedirs(leaf_folder)
 
-    # folder for csv files to compare with GPS-less EKF
+    # folder for network output csv files to compare with GPS-less EKF
     for folder_level_1 in folders_level_1:
-        output_csv_folder = os.path.join(trial_root_folder, folder_level_1, "reconstructed", "nn_output_csv")
-        os.mkdir(output_csv_folder)
+        for folder_level_2 in folders_level_2:
+            output_csv_folder = os.path.join(trial_root_folder, folder_level_1, folder_level_2, "nn_output_csv")
+            os.mkdir(output_csv_folder)
 
     if session_mode == "Evaluate":
         return trial_tree

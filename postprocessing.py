@@ -120,9 +120,16 @@ def evaluate_all_flights(model, train_flights_dict, val_flights_dict, trial_fold
             # reconstructed output csv file name 
             output_csv_file_nn = os.path.join(trial_folder, set_name, "reconstructed", \
                                               "nn_output_csv", flight_name + "_nn.csv")
+
+            # differenced output csv file name 
+            output_csv_file_nn_diff = os.path.join(trial_folder, set_name, "differenced", \
+                                              "nn_output_csv", flight_name + "_nn.csv")
             
-            # save the reconstructed predictions (differenced ground truth already saved by create_dataset.py)
+            # save the reconstructed predictions (ground truth already saved by create_dataset.py)
             np.savetxt(output_csv_file_nn, predictions_reconstructed, delimiter=",")
+
+            # save the differenced predictions
+            np.savetxt(output_csv_file_nn_diff, predictions_diff, delimiter=",")
 
             # maximum errors between prediction and ground truth
             max_position_error = np.max(np.linalg.norm(ground_truth_reconstructed[:,-3:] \
