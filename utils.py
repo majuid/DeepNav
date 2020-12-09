@@ -38,7 +38,7 @@ def create_trial_tree(trial_number, session_mode):
     # tree levels
     folders_level_1 = ["training", "validation"]
     folders_level_2 = ["differenced", "reconstructed"]
-    folders_level_3 = ["best", "worst", "other"]
+    folders_level_3 = ["best", "worst", "other", "nn_output_csv"]
 
     # leaf folders
     for folder_level_1 in folders_level_1:
@@ -46,12 +46,6 @@ def create_trial_tree(trial_number, session_mode):
             for folder_level_3 in folders_level_3:
                 leaf_folder = os.path.join(trial_root_folder, folder_level_1, folder_level_2, folder_level_3)
                 os.makedirs(leaf_folder)
-
-    # folder for network output csv files to compare with GPS-less EKF
-    for folder_level_1 in folders_level_1:
-        for folder_level_2 in folders_level_2:
-            output_csv_folder = os.path.join(trial_root_folder, folder_level_1, folder_level_2, "nn_output_csv")
-            os.mkdir(output_csv_folder)
 
     if session_mode == "Evaluate":
         return trial_tree
