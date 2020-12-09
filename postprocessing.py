@@ -132,10 +132,10 @@ def evaluate_all_flights(model, train_flights_dict, val_flights_dict, trial_fold
             np.savetxt(output_csv_file_nn_diff, predictions_diff, delimiter=",")
 
             # maximum errors between prediction and ground truth
-            max_position_error = np.max(np.linalg.norm(ground_truth_reconstructed[:,-3:] \
-                                                      -predictions_reconstructed[:,-3:], axis=1))
-            max_velocity_error = np.max(np.linalg.norm(ground_truth_reconstructed[:,-6:] \
-                                                      -predictions_reconstructed[:,-6:], axis=1))
+            max_velocity_error = np.max(np.linalg.norm(ground_truth_reconstructed[:,0:3] \
+                                                      -predictions_reconstructed[:,0:3], axis=1))
+            max_position_error = np.max(np.linalg.norm(ground_truth_reconstructed[:,3:6] \
+                                                      -predictions_reconstructed[:,3:6], axis=1))
 
             # add error to the output file name
             pdf_name = flight_name + "_MPE_" f'{max_position_error:.2f}' + \
