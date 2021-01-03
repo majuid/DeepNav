@@ -17,7 +17,7 @@ from preprocessing.create_dataset import create_dataset
 
 # Session Parameters
 session_mode = ["Fresh", "Resume", "Evaluate", "Override"]
-mode_id = 2
+mode_id = 0
 gpu_name = ["/GPU:0", "/GPU:1", None]
 gpu_id = 0
 create_new_dataset = False 
@@ -97,17 +97,21 @@ for trial_offset, hyperparam_value in enumerate(hyperparam_values):
     
     # for every flight, plot all states (truth vs predictions)
     flights_summary = postprocessing.evaluate_all_flights(model, train_flights_dict, val_flights_dict, \
-                                        trial_tree["trial_root_folder"], n_extreme_flights=10)
+                                        trial_tree["trial_root_folder"], n_extreme_flights=30)
 
     # add the network configuration and performance to the summary csv
     postprocessing.summarize_session(trial_tree, model, session_data, flights_summary)
 
+    # save a keras model
+    keras_model_path = trial_tree["trial_root_folder"] + "/keras_model"
+    model.save(keras_model_path)
+
     # save the model in tf SavedModel format
-    model_path = trial_tree["trial_root_folder"] + "/saved_model"
-    tf.saved_model.save(model, model_path)
+    tf_model_path = trial_tree["trial_root_folder"] + "/tf_saved_model"
+    tf.saved_model.save(model, tf_model_path)
 
     # Convert the model into lite format (to use with embedded systems)
-    converter = tf.lite.TFLiteConverter.from_saved_model(model_path)
+    converter = tf.lite.TFLiteConverter.from_saved_model(tf_model_path)
     tflite_model = converter.convert()
 
     # Save the lite model
