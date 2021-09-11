@@ -1,0 +1,6 @@
+std_msgs/Header header
+geometry_msgs/Point position
+geometry_msgs/Vector3 velocity
+float32 position_error_3d
+float32 velocity_error_3d
+float32 inference_time
