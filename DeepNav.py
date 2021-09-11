@@ -25,10 +25,10 @@ create_new_dataset = True
 
 # Network Architecture
 model_architecture = [
-    tf.keras.layers.LSTM(20, return_sequences=True),
-    tf.keras.layers.LSTM(200, return_sequences=True),
-    tf.keras.layers.LSTM(200, return_sequences=True),
-    tf.keras.layers.LSTM(20, return_sequences=False),
+    tf.keras.layers.LSTM(20, return_sequences=True), #200
+    # tf.keras.layers.LSTM(200, return_sequences=True),
+    # tf.keras.layers.LSTM(200, return_sequences=True),
+    tf.keras.layers.LSTM(20, return_sequences=False), #200S
     tf.keras.layers.Dense(6)
     ]
 
@@ -37,16 +37,16 @@ varying_hyperparam = None
 hyperparam_values = [None]
 
 # Network Hyperparameters
-session_data = {"trial_number" : 4,
+session_data = {"trial_number" : 1,
 
                 "session_mode" : session_mode[mode_id],
                 "gpu_name" : gpu_name[gpu_id],
 
                 "batch_size" : int(1 * 1024),
                 "learning_rate" : 0.001,
-                "window_size" : 10,
+                "window_size" : 10, # 200
                 "dropout" : 0.0,
-                "epochs" : 3,
+                "epochs" : 3,  # 100
                 "initial_epoch" : 0
                 }
 
