@@ -1,9 +1,9 @@
 db_api_info: https://review.px4.io/dbinfo
 download_api: https://review.px4.io/download
-duration_max_m: 40
-duration_min_m: 5
+duration_max_m: 40   # maximum allowable duration in minutes
+duration_min_m: 5    # minimum allowable duration in minutes
 filters:
-  flight_modes:
+  flight_modes:      # any log with at least one of these modes will be downloaded
   - Mission
   - Position
   - Orbit
@@ -12,16 +12,33 @@ filters:
   - Land
   - Follow Target
   - Loiter
-  rating:
+  rating:  # only logs with one of these ratings will be downloaded
   - Good
   - Great!
   - ''
-  sys_hw:
+  sys_hw:  # only logs with one of these hardware versions will be downloaded
   - PX4_FMU_V5
   - PX4FMU_V5
-  num_logged_errors: 0
+  num_logged_errors: 0 # only logs that have exactly this number of errors will be downloaded
+
+  # you can add other filters, for example to only download Quadrotor logs
+  # just create a list of the allowable values like in "rating" list above
+
+# if you have already downloaded the database info file, just use it
+# this json file must be placed in /DeepNav/DeepNav_data/database_info_files
 local_db_info_file: filtered_px4_db_info_16Nov2020.json
+
+# maximum number of logs to download, if the filters are relaxed you
+# could end up downloading hundreds of gigabytes of logs
 max_num: 1000
+
+# overwrite existing logs?
 overwrite: false
-save_db_info_only: false
-use_local_db_info: true
+
+# only download the database info file without downloading the logs themselves
+save_db_info_only: true
+
+# use the local database info file without retrieving a new one
+# note that retrieving a new info file takes time, and the server
+# request fails more often than it succeeds
+use_local_db_info: false
