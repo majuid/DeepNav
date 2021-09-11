@@ -5,8 +5,14 @@ Created on Wed 08 Jan 2021 | 9:00 AM
 
 @author: Ahmed Majuid
 
-Usage: read flight csvs extracted from ulg file and broadcast them
-       as if they were real time measurements
+Usage: read flight csvs extracted from ulg and broadcast them
+       as if they were realtime measurements arriving from Pixhawk via mavros
+
+       to run this script:
+       $ ./replay_log_csv.py <log_folder>
+
+       where <log_folder> is the folder where the csv files extracted from the ulg
+       are saved, it must be placed in /DeepNav/DeepNav_data/flight_csvs/       
 """
 
 import os

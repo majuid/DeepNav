@@ -9,6 +9,13 @@ Usage: Perform real time inference of position and velocity without a GPS using 
        pretrained Neural Network (NN), this code runs on a mavros enabled 
        companion computer or ground station PC
        
+       to run this script:
+       $ ./run_inference.py <trial_number> <window_size>
+       where <trial_number> is the folder where the tf_SavedModel is saved,
+       it must be placed in /DeepNav/DeepNav_results/
+       <window_size> is the features window size given to the network for
+       every inference, if you are using the provided tf_model, this is 100
+
        inference is better stopped when the drone is not moving using:
        $ rosparam set /deep_nav/enable_inference Fasle
        inference can be started using:
