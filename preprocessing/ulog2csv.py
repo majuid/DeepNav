@@ -10,9 +10,7 @@ and modified to work within DeepNav directory structure
 The main modification is that this version converts an entire
 directory of ulg files in a single run and doesn't take
 calling arguments
-"""
 
-"""
 Convert a ULog file into CSV file(s)
 """
 
@@ -37,10 +35,18 @@ def convert_ulog2csv(ulog_file_name, messages, output, delimiter=',', disable_st
     ulog = ULog(ulog_file_name, msg_filter, disable_str_exceptions)
     data = ulog.data_list
 
-    output_file_prefix = ulog_file_name[:-41]
-    # strip '.ulg'
-    if output_file_prefix.lower().endswith('.ulg'):
-        output_file_prefix = output_file_prefix[:-4]
+    # if the log is downloaded from the database, keep the name prefix, remove the long hash
+    if len(ulog_file_name) > 42:
+        output_file_prefix = os.path.join(csvs_dir, flight_name[:-41])
+
+    # otherwise, remove the .ulg extension only
+    else:
+        output_file_prefix = os.path.join(csvs_dir, flight_name[:-4])
+
+    # output_file_prefix = ulog_file_name[:-41]
+    # # strip '.ulg'
+    # if output_file_prefix.lower().endswith('.ulg'):
+    #     output_file_prefix = output_file_prefix[:-4]
 
     # write to different output path?
     if output:
@@ -90,7 +96,13 @@ for flight_number, flight_name in enumerate(sorted(os.listdir(ulg_dir))):
     
     print("processing flight number ", flight_number, "\t", flight_name)
 
-    output_folder = os.path.join(csvs_dir, flight_name[:-41])
+    # if the log is downloaded from the database, keep the name prefix, remove the long hash
+    if len(flight_name) > 42:
+        output_folder = os.path.join(csvs_dir, flight_name[:-41])
+
+    # otherwise, remove the .ulg extension only
+    else:
+        output_folder = os.path.join(csvs_dir, flight_name[:-4])
 
     # if this ulg is already converted
     if os.path.isdir(output_folder) : 
@@ -99,5 +111,5 @@ for flight_number, flight_name in enumerate(sorted(os.listdir(ulg_dir))):
     
     os.mkdir(output_folder)
 
-    messages = "sensor_combined,estimator_status,vehicle_gps_position,vehicle_air_data,vehicle_magnetometer"
+    messages = "sensor_combined,estimator_status,estimator_states,vehicle_gps_position,vehicle_air_data,vehicle_magnetometer"
     convert_ulog2csv(os.path.join(ulg_dir, flight_name), messages, output = output_folder)

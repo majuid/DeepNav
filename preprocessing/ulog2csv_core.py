@@ -1,6 +1,6 @@
-""" Main Module to load and parse an ULog file """
+""" 
+Main Module to load and parse an ULog file
 
-"""
 This script was obtained from 
 
 https://github.com/PX4/pyulog/blob/master/pyulog/core.py
