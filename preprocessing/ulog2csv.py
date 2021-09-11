@@ -1,6 +1,18 @@
 #! /usr/bin/env python
 
 """
+This script was obtained from 
+
+https://github.com/PX4/pyulog/blob/master/pyulog/ulog2csv.py
+
+and modified to work within DeepNav directory structure
+
+The main modification is that this version converts an entire
+directory of ulg files in a single run and doesn't take
+calling arguments
+"""
+
+"""
 Convert a ULog file into CSV file(s)
 """
 

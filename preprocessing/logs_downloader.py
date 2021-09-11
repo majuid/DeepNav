@@ -1,5 +1,18 @@
 #! /usr/bin/env python3
 
+"""
+This script is based on
+https://github.com/PX4/flight_review/blob/master/app/download_logs.py
+https://github.com/PX4/flight_review/blob/master/app/plot_app/config_tables.py
+
+The main modifications are:
+    - This version reads download options from yaml file
+      instead of command line arguments
+    - This version allows logs filtering according to
+      min/max duration, sys_hw (board hardware), and number of logged errors
+    - This version renames the logs according to their durations
+"""
+
 """ Script to download public logs """
 
 import os
