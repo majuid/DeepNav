@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<root version="2.3.8">
+ <tabbed_widget parent="main_window" name="Main Window">
+  <Tab containers="1" tab_name="TopView">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockArea name="...">
+      <plot style="Lines" mode="XYPlot">
+       <range right="210.220098" bottom="-42.760110" left="-67.763197" top="100.219609"/>
+       <limitY/>
+       <curve name="/deep_nav/ned_ekf/position/[x;y]" color="#1f77b4" curve_x="/deep_nav/ned_ekf/position/x" curve_y="/deep_nav/ned_ekf/position/y"/>
+       <curve name="/deep_nav/nn_predictions/position/[x;y]" color="#d62728" curve_x="/deep_nav/nn_predictions/position/x" curve_y="/deep_nav/nn_predictions/position/y"/>
+      </plot>
+     </DockArea>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab containers="1" tab_name="Velocity">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="3" sizes="0.333333;0.333333;0.333333">
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="99.971067" bottom="-5.123550" left="0.000000" top="0.685149"/>
+        <limitY/>
+        <curve name="/deep_nav/ned_ekf/velocity/x" color="#1f77b4"/>
+        <curve name="/deep_nav/nn_predictions/velocity/x" color="#d62728"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="99.971067" bottom="-5.386394" left="0.000000" top="3.339006"/>
+        <limitY/>
+        <curve name="/deep_nav/ned_ekf/velocity/y" color="#1f77b4"/>
+        <curve name="/deep_nav/nn_predictions/velocity/y" color="#d62728"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="99.971067" bottom="-0.737195" left="0.000000" top="2.866365"/>
+        <limitY/>
+        <curve name="/deep_nav/ned_ekf/velocity/z" color="#1f77b4"/>
+        <curve name="/deep_nav/nn_predictions/velocity/z" color="#d62728"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab containers="1" tab_name="Errors">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockSplitter orientation="|" count="2" sizes="0.5;0.5">
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="-0.586879" bottom="0.693558" left="-100.504867" top="2.780873"/>
+        <limitY/>
+        <curve name="/deep_nav/nn_predictions/position_error_3d" color="#d62728"/>
+       </plot>
+      </DockArea>
+      <DockArea name="...">
+       <plot style="Lines" mode="TimeSeries">
+        <range right="-1.153365" bottom="-0.007494" left="-101.071352" top="0.996711"/>
+        <limitY/>
+        <curve name="/deep_nav/nn_predictions/velocity_error_3d" color="#d62728"/>
+       </plot>
+      </DockArea>
+     </DockSplitter>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <Tab containers="1" tab_name="InferenceTime">
+   <Container>
+    <DockSplitter orientation="-" count="1" sizes="1">
+     <DockArea name="...">
+      <plot style="Lines" mode="TimeSeries">
+       <range right="10.699713" bottom="0.057253" left="-89.235278" top="0.388419"/>
+       <limitY/>
+       <curve name="/deep_nav/nn_predictions/inference_time" color="#d62728"/>
+      </plot>
+     </DockArea>
+    </DockSplitter>
+   </Container>
+  </Tab>
+  <currentTabIndex index="2"/>
+ </tabbed_widget>
+ <use_relative_time_offset enabled="1"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <!-- - - - - - - - - - - - - - - -->
+ <Plugins>
+  <plugin ID="DataLoad CSV">
+   <default time_axis=""/>
+  </plugin>
+  <plugin ID="DataLoad ROS bags">
+   <use_header_stamp value="false"/>
+   <use_renaming_rules value="true"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="100"/>
+  </plugin>
+  <plugin ID="DataLoad ULog"/>
+  <plugin ID="ROS Topic Subscriber">
+   <use_header_stamp value="true"/>
+   <use_renaming_rules value="true"/>
+   <discard_large_arrays value="true"/>
+   <max_array_size value="1000"/>
+  </plugin>
+  <plugin ID="UDP Server"/>
+  <plugin ID="WebSocket Server"/>
+  <plugin ID="ZMQ Subscriber"/>
+  <plugin ID="CSV Exporter" status="idle"/>
+  <plugin ID="ROS /rosout Visualization" status="idle"/>
+  <plugin ID="ROS Topic Re-Publisher" status="idle"/>
+ </Plugins>
+ <!-- - - - - - - - - - - - - - - -->
+ <previouslyLoaded_Datafiles/>
+ <previouslyLoaded_Streamer name="ROS Topic Subscriber"/>
+ <!-- - - - - - - - - - - - - - - -->
+ <customMathEquations/>
+ <snippets/>
+ <!-- - - - - - - - - - - - - - - -->
+</root>
+
