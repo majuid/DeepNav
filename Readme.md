@@ -23,7 +23,7 @@ If you don't want to apply any modifications and use the trained network as it i
 
 - [TensorFlow 2.2.0](https://www.tensorflow.org/ "$ conda install tensorflow=2.2.0") and [MAVROS](https://docs.px4.io/master/en/ros/mavros_installation.html).
 
-- A realtime visualization tool to compare the results to the ground truth. I recommend [PlotJuggler](https://github.com/facontidavide/PlotJuggler). 
+- A realtime visualization tool to compare the results to the ground truth. I recommend [PlotJuggler](https://github.com/facontidavide/PlotJuggler "$ sudo apt install ros-<distro>-plotjuggler-ros"). 
 
 
 ### Try the provided log sample
@@ -87,7 +87,7 @@ If you don't want to apply any modifications and use the trained network as it i
 
     `$ rosrun plotjuggler plotjuggler -n -l PlotJuggler_layout.xml`
 
-#### Expected Resull
+#### Expected Result - Video
 
 [![DeepNav Demo](http://img.youtube.com/vi/MtzwcpFkFA0/0.jpg)](https://www.youtube.com/watch?v=MtzwcpFkFA0 "DeepNav | An Intelligent Inertial Navigation System Demo")
 
