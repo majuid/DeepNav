@@ -28,6 +28,8 @@ please cite as
 
 - You don't need a GPU to *run* DeepNav, you only need it to *train* it.
 
+- The median accuracy in the validation set is currently about 34 meters. In some flights, the error is less than 3 meters, in other flights it is much larger. Recommendations on geting the best results can be found in the paper.
+
 ## Basic Usage: using the trained network
 
 If you don't want to apply any modifications and use the trained network as it is, follow these steps. Otherwise, go to "Advanced Usage" below.
