@@ -2,6 +2,12 @@
 This is a neural network that predicts a drone's
 local position from the raw IMU, Barometer, and Magnetometer measurements. No GPS, camera or any other sensor is needed. This system works with the [PX4 autopilot](https://px4.io/) using [MAVROS](http://wiki.ros.org/mavros) in realtime.
 
+## Reference
+If you need to dive deeper into the science behind DeepNav, you download the paper preprint 
+
+https://arxiv.org/abs/2109.04861
+
+
 ## Considerations
 
 - This is a beta release, to avoid crashes, don't use it for flight control as an alternative to the tradional [EKF/GPS](https://docs.px4.io/master/en/advanced_config/tuning_the_ecl_ekf.html). Instead, you are welcome to test, enhance or compare it to other estimators.
