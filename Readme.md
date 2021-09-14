@@ -3,10 +3,20 @@ This is a neural network that predicts a drone's
 local position from the raw IMU, Barometer, and Magnetometer measurements. No GPS, camera or any other sensor is needed. This system works with the [PX4 autopilot](https://px4.io/) using [MAVROS](http://wiki.ros.org/mavros) in realtime.
 
 ## Reference
-If you need to dive deeper into the science behind DeepNav, you download the paper preprint 
+If you need to dive deeper into the science behind DeepNav, you can download the paper preprint 
 
 https://arxiv.org/abs/2109.04861
 
+please cite as
+
+    @misc{abdulmajuid2021gpsdenied,
+          title={GPS-Denied Navigation Using Low-Cost Inertial Sensors and Recurrent Neural Networks}, 
+          author={Ahmed AbdulMajuid and Osama Mohamady and Mohannad Draz and Gamal El-bayoumi},
+          year={2021},
+          eprint={2109.04861},
+          archivePrefix={arXiv},
+          primaryClass={eess.SP}
+    }
 
 ## Considerations
 
